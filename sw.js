@@ -1,27 +1,42 @@
-const CACHE = 'hearth-v1';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap'
-];
+const CACHE = 'hearth-v3';
 
+// On install - skip waiting immediately
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS.filter(a => !a.startsWith('http'))))
-  );
   self.skipWaiting();
 });
 
+// On activate - clear ALL old caches and take control immediately
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
-  self.clients.claim();
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
 });
 
+// Network first - always try network, only fall back to cache
+// This prevents stale 404s from ever being served
 self.addEventListener('fetch', e => {
+  // Only handle GET requests
+  if (e.request.method !== 'GET') return;
+
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        // If we got a good response, cache it and return it
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        }
+        return response;
+      })
+      .catch(() => {
+        // Network failed - try cache as fallback
+        return caches.match(e.request).then(cached => {
+          if (cached) return cached;
+          // If nothing cached either, return offline page
+          return caches.match('/hearth-appv2/') || caches.match('/hearth-appv2/index.html');
+        });
+      })
   );
 });
