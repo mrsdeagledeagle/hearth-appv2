@@ -174,20 +174,57 @@ input:focus,select:focus{border-color:var(--teal)}
 .div{height:1px;background:var(--border);margin:10px 0}
 .row{display:flex;align-items:center;gap:8px}
 .tsm{font-size:12px;color:var(--text2)}
-@media(max-width:768px){.app{grid-template-columns:1fr}.sidebar{display:none}.g2,.g4{grid-template-columns:1fr}}
-
 /* ---- Mobile ---- */
 @media(max-width:768px){
-  .app{grid-template-columns:1fr;grid-template-rows:56px 1fr 60px}
-  .sidebar{display:none}
-  .main{overflow-y:auto;padding-bottom:70px}
+  .app{grid-template-columns:1fr !important;grid-template-rows:56px 1fr 64px}
+  .sidebar{display:none !important}
+  .main{overflow-y:auto;padding-bottom:80px}
   .mobile-nav{display:flex}
-  .g2{grid-template-columns:1fr}
-  .g4{grid-template-columns:1fr 1fr}
-  .ph{flex-direction:column;gap:8px}
-  .view{padding:16px}
-  .rt{font-size:12px}
-  .rt th,.rt td{padding:8px 6px}
+  /* Single column everything */
+  .g2,.g3,.g4{grid-template-columns:1fr !important}
+  .ph{flex-direction:column;gap:10px}
+  .view{padding:14px}
+  /* Bigger text for readability */
+  body{font-size:15px}
+  .pt{font-size:24px}
+  .ps,.cs,.tsm{font-size:13px}
+  .ct{font-size:12px}
+  .cv{font-size:30px}
+  .card{padding:16px}
+  .at{font-size:14px !important}
+  .ad{font-size:13px !important}
+  .btn{font-size:13px;padding:9px 16px}
+  /* Roster table — hide less important cols */
+  .rt th:nth-child(4),.rt td:nth-child(4),
+  .rt th:nth-child(6),.rt td:nth-child(6){display:none}
+  .rt{font-size:13px}
+  .rt th,.rt td{padding:10px 8px}
+  /* Bigger nav */
+  .mn-item{font-size:10px}
+  .mn-item .mni{font-size:24px}
+  /* Settings */
+  .sst{font-size:15px}
+  .sl{font-size:14px}
+  .sub{font-size:12px}
+  .sr{flex-direction:column;align-items:flex-start;gap:10px}
+  .sr input,.sr select{width:100%}
+  /* Agent log */
+  .lti{font-size:14px}
+  .ld{font-size:13px}
+  /* Alert buttons stack */
+  .aa{flex-direction:column}
+  .aa .btn{width:100%;text-align:center}
+  /* Topnav */
+  .topnav{padding:0 14px}
+  .logo{font-size:20px}
+  .abadge{display:none}
+  .sleep-tog{font-size:11px;padding:4px 10px}
+  /* Hours table */
+  .ht{font-size:13px}
+  .ht th,.ht td{padding:9px 8px}
+  /* Flag items */
+  .fi{flex-wrap:wrap}
+  .litem{flex-wrap:wrap}
 }
 @media(min-width:769px){.mobile-nav{display:none}}
 .mobile-nav{
