@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearth — Family Care Scheduler</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Hearth">
+  <meta name="theme-color" content="#1D9E75">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F7F4EF;--surface:#FFFFFF;--surface2:#F0EDE8;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#1A1714;--text2:#6B6560;--text3:#9E9893;
+  --teal:#1D9E75;--teal-bg:#E1F5EE;--teal-t:#0A5C41;
+  --blue:#2B72C8;--blue-bg:#E8F1FB;--blue-t:#0C3F7A;
+  --amber:#C47A12;--amber-bg:#FDF0D8;--amber-t:#6B3E06;
+  --red:#D94040;--red-bg:#FDEAEA;--red-t:#7A1A1A;
+  --purple:#6B52C8;--purple-bg:#EEEBFB;--purple-t:#3A2880;
+  --slate:#4A5568;--slate-bg:#EDF0F4;--slate-t:#2D3748;
+  --r:12px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+h1,h2,h3{font-family:'DM Serif Display',serif;font-weight:400}
+.app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:56px 1fr;min-height:100vh}
+.topnav{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:10}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.sleep-tog{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;user-select:none}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--text3);transition:background .3s}
+.sdot.on{background:#7B61FF;box-shadow:0 0 0 3px rgba(123,97,255,.2)}
+.abadge{background:var(--teal-bg);color:var(--teal-t);font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500}
+.nbell{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:14px}
+.nc{position:absolute;top:-2px;right:-2px;background:var(--red);color:#fff;font-size:9px;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 0;display:flex;flex-direction:column;overflow-y:auto}
+.ssec{padding:6px 16px 2px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-top:8px}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border-left:2px solid transparent;margin:1px 0}
+.ni:hover{background:var(--surface2);color:var(--text)}
+.ni.active{background:var(--teal-bg);color:var(--teal-t);border-left-color:var(--teal);font-weight:500}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px}
+.nbadge.am{background:var(--amber)}
+.main{overflow-y:auto}
+.view{display:none;padding:24px}
+.view.active{display:block}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.pt{font-size:26px}
+.ps{font-size:13px;color:var(--text2);margin-top:2px}
+.alert{border-radius:var(--r);padding:14px 16px;margin-bottom:10px;border:1px solid;display:flex;gap:12px;align-items:flex-start;transition:opacity .3s,max-height .4s}
+.alert.am{background:var(--amber-bg);border-color:rgba(196,122,18,.25)}
+.alert.red{background:var(--red-bg);border-color:rgba(217,64,64,.25)}
+.alert.tl{background:var(--teal-bg);border-color:rgba(29,158,117,.25)}
+.ai{font-size:16px;margin-top:1px;flex-shrink:0}
+.ab{flex:1}
+.at{font-weight:500;font-size:13px;margin-bottom:3px}
+.alert.am .at{color:var(--amber-t)}
+.alert.red .at{color:var(--red-t)}
+.alert.tl .at{color:var(--teal-t)}
+.ad{font-size:12px;color:var(--text2);line-height:1.5}
+.aa{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.btn{padding:6px 14px;border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;border:1px solid;transition:all .15s;font-family:'DM Sans',sans-serif}
+.bp{background:var(--teal);color:#fff;border-color:var(--teal)}
+.bp:hover{background:#178a63}
+.bo{background:#fff;color:var(--text);border-color:var(--border2)}
+.bo:hover{background:var(--surface2)}
+.bg{background:transparent;color:var(--text2);border-color:transparent;font-size:12px}
+.bg:hover{color:var(--text)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.ct{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px}
+.cv{font-size:28px;font-family:'DM Serif Display',serif}
+.cs{font-size:12px;color:var(--text2);margin-top:2px}
+.cw{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.ctb{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+.cnb{display:flex;align-items:center;gap:8px}
+.cnbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
+.ctit{font-size:15px;font-weight:500}
+.cvb{display:flex;gap:4px}
+.cvbtn{padding:4px 12px;border-radius:6px;font-size:12px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--text2);font-family:'DM Sans',sans-serif}
+.cvbtn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.cgh{display:grid;grid-template-columns:52px repeat(5,1fr);border-bottom:1px solid var(--border)}
+.dh{padding:10px 4px;text-align:center;font-size:11px;color:var(--text3);font-weight:500;border-left:1px solid var(--border)}
+.dd{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;font-size:15px;font-weight:500;color:var(--text)}
+.dd.today{background:var(--teal);color:#fff}
+.cgb{display:grid;grid-template-columns:52px repeat(5,1fr);position:relative}
+.ts{height:40px;display:flex;align-items:flex-start;padding-top:2px;justify-content:flex-end;padding-right:8px;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border)}
+.dcb{border-left:1px solid var(--border);position:relative}
+.hl{height:40px;border-bottom:1px solid var(--border)}
+.ev{position:absolute;border-radius:6px;padding:3px 6px;font-size:10px;font-weight:500;line-height:1.3;overflow:hidden;cursor:default;border-left:3px solid}
+.ev.nanny{background:var(--teal-bg);border-color:var(--teal);color:var(--teal-t)}
+.ev.backup{background:var(--purple-bg);border-color:var(--purple);color:var(--purple-t)}
+.ev.meeting{background:var(--blue-bg);border-color:var(--blue);color:var(--blue-t)}
+.ev.daycare{background:var(--amber-bg);border-color:var(--amber);color:var(--amber-t)}
+.ev.gap{background:var(--red-bg);border-color:var(--red);color:var(--red-t)}
+.ev.wfh{background:var(--slate-bg);border-color:var(--slate);color:var(--slate-t)}
+.leg{display:flex;flex-wrap:wrap;gap:12px;padding:10px 18px;border-top:1px solid var(--border)}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.lb{width:12px;height:12px;border-radius:2px}
+.rt{width:100%;border-collapse:collapse;font-size:13px}
+.rt th{text-align:left;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:0 12px 10px}
+.rt td{padding:10px 12px;border-top:1px solid var(--border);vertical-align:middle}
+.rt tr:hover td{background:var(--surface2)}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.pc{display:flex;align-items:center;gap:10px}
+.pn{font-weight:500;color:var(--text);font-size:13px}
+.pp{font-size:11px;color:var(--text2)}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.pill.tl{background:var(--teal-bg);color:var(--teal-t)}
+.pill.am{background:var(--amber-bg);color:var(--amber-t)}
+.pill.rd{background:var(--red-bg);color:var(--red-t)}
+.pill.pu{background:var(--purple-bg);color:var(--purple-t)}
+.pill.gr{background:var(--surface2);color:var(--text2)}
+.pill.bl{background:var(--blue-bg);color:var(--blue-t)}
+.ht{width:100%;border-collapse:collapse;font-size:13px}
+.ht th{text-align:left;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:0 12px 10px}
+.ht td{padding:9px 12px;border-top:1px solid var(--border)}
+.ht .tr td{font-weight:500;background:var(--surface2)}
+.alog{display:flex;flex-direction:column;gap:6px}
+.litem{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);display:flex;gap:12px}
+.lt{font-size:11px;color:var(--text3);white-space:nowrap;margin-top:2px;min-width:60px}
+.lb2{flex:1}
+.lti{font-size:13px;font-weight:500;margin-bottom:2px}
+.ld{font-size:12px;color:var(--text2);line-height:1.5}
+.li2{font-size:16px;margin-top:1px;flex-shrink:0}
+.lst{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;margin-top:4px}
+.ls-ok{background:var(--teal-bg);color:var(--teal-t)}
+.ls-pd{background:var(--amber-bg);color:var(--amber-t)}
+.ls-in{background:var(--blue-bg);color:var(--blue-t)}
+.ss{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.sst{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:500;font-size:14px}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border)}
+.sr:last-child{border-bottom:none}
+.sl{font-size:13px}
+.sub{font-size:11px;color:var(--text2);margin-top:2px}
+.tog{width:36px;height:20px;background:var(--border2);border-radius:20px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--teal)}
+.tog::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog.on::after{transform:translateX(16px)}
+input[type=text],input[type=tel],input[type=time],select,textarea{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border2);border-radius:var(--rs);padding:7px 10px;outline:none;transition:border .15s}
+input:focus,select:focus{border-color:var(--teal)}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.md{background:var(--surface);border-radius:var(--r);padding:24px;max-width:440px;width:90%;box-shadow:0 2px 8px rgba(0,0,0,.08),0 12px 32px rgba(0,0,0,.08)}
+.md h2{font-size:20px;margin-bottom:4px}
+.mds{font-size:13px;color:var(--text2);margin-bottom:18px}
+.fr{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.fl{font-size:12px;font-weight:500;color:var(--text2)}
+.fr input,.fr select{width:100%}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.sms{background:var(--surface2);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.sm{max-width:80%;padding:8px 12px;border-radius:14px;font-size:12px;line-height:1.5}
+.sm.out{background:var(--teal);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.sm.in{background:#fff;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--border)}
+.stm{font-size:10px;color:var(--text3);text-align:center}
+.slbl{font-size:11px;color:var(--text3);text-align:center;margin:4px 0}
+.fl2{display:flex;flex-direction:column;gap:8px}
+.fi{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px}
+.fd{font-size:11px;font-weight:500;min-width:40px;color:var(--text2);text-align:center;line-height:1.3}
+.fdn{font-size:16px;font-family:'DM Serif Display',serif;color:var(--text)}
+.fb{flex:1}
+.fti{font-size:13px;font-weight:500}
+.fde{font-size:11px;color:var(--text2);margin-top:2px}
+.fdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.fdr{background:var(--red)}
+.fdam{background:var(--amber)}
+.fdbl{background:var(--blue)}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sth{font-size:15px;font-weight:500}
+.div{height:1px;background:var(--border);margin:10px 0}
+.row{display:flex;align-items:center;gap:8px}
+.tsm{font-size:12px;color:var(--text2)}
+@media(max-width:768px){.app{grid-template-columns:1fr}.sidebar{display:none}.g2,.g4{grid-template-columns:1fr}}
+
+/* ---- Mobile ---- */
+@media(max-width:768px){
+  .app{grid-template-columns:1fr;grid-template-rows:56px 1fr 60px}
+  .sidebar{display:none}
+  .main{overflow-y:auto;padding-bottom:70px}
+  .mobile-nav{display:flex}
+  .g2{grid-template-columns:1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .ph{flex-direction:column;gap:8px}
+  .view{padding:16px}
+  .rt{font-size:12px}
+  .rt th,.rt td{padding:8px 6px}
+}
+@media(min-width:769px){.mobile-nav{display:none}}
+.mobile-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  height:60px;z-index:20;padding-bottom:env(safe-area-inset-bottom)
+}
+.mn-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-size:9px;color:var(--text3);padding:6px 4px;border:none;background:none;font-family:'DM Sans',sans-serif;transition:color .15s}
+.mn-item.active{color:var(--teal)}
+.mn-item .mni{font-size:20px;line-height:1}
+/* install banner */
+.install-banner{display:none;position:fixed;bottom:70px;left:12px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:30;flex-direction:row;align-items:center;gap:10px}
+.install-banner.show{display:flex}
+.ib-icon{width:36px;height:36px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
+.ib-text{flex:1;font-size:12px;color:var(--text2);line-height:1.4}
+.ib-text strong{display:block;font-size:13px;color:var(--text);margin-bottom:2px}
+
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="topnav">
+  <div class="logo"><div class="logo-icon">⌂</div>Hearth</div>
+  <div class="nav-right">
+    <span class="abadge">Agent active</span>
+    <div class="sleep-tog" id="sTog" onclick="toggleSleep()">
+      <div class="sdot on" id="sDot"></div>
+      <span id="sLbl">Sleep mode on</span>
+    </div>
+    <div class="nbell" onclick="showView('agent')">🔔<span class="nc" id="nc">3</span></div>
+  </div>
+</nav>
+<aside class="sidebar">
+  <div class="ni active" id="nav-dashboard" onclick="showView('dashboard')"><span>◈</span> Dashboard</div>
+  <div class="ni" id="nav-calendar" onclick="showView('calendar')"><span>📅</span> Calendar</div>
+  <div class="ssec">Care Team</div>
+  <div class="ni" id="nav-roster" onclick="showView('roster')"><span>👥</span> Nanny roster</div>
+  <div class="ni" id="nav-hours" onclick="showView('hours')"><span>📋</span> Hours &amp; pay log</div>
+  <div class="ssec">Agent</div>
+  <div class="ni" id="nav-agent" onclick="showView('agent')"><span>🤖</span> Agent log <span class="nbadge" id="ab">3</span></div>
+  <div class="ni" id="nav-lookahead" onclick="showView('lookahead')"><span>🔭</span> Lookahead <span class="nbadge am">5</span></div>
+  <div class="ssec">Config</div>
+  <div class="ni" id="nav-settings" onclick="showView('settings')"><span>⚙</span> Settings</div>
+</aside>
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="view active" id="view-dashboard">
+  <div class="ph">
+    <div><h1 class="pt">Good morning</h1><div class="ps">Tuesday, April 8 · Sleep mode active · Agent is watching</div></div>
+    <button class="btn bp" onclick="openModal('gapM')">+ Add coverage</button>
+  </div>
+  <div id="alerts">
+  <!-- Get Started Banner -->
+  <div id="gs-banner" style="
+    background: linear-gradient(135deg, #0A5C41 0%, #1D9E75 100%);
+    border-radius: 16px; padding: 22px 24px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  ">
+    <div style="font-size: 36px; flex-shrink:0;">🌿</div>
+    <div style="flex:1; min-width:180px;">
+      <div style="font-family:'DM Serif Display',serif; font-size:18px; color:#fff; margin-bottom:4px;">Ready to go live?</div>
+      <div style="font-size:13px; color:rgba(255,255,255,0.8); line-height:1.5;">You're on demo data. The setup wizard walks you through adding your family info, calendars, and nannies so Hearth runs on your real schedule.</div>
+    </div>
+    <button onclick="startSetup()" style="
+      background:#fff; color:#0A5C41; border:none; border-radius:10px;
+      padding:11px 22px; font-size:14px; font-weight:500; cursor:pointer;
+      font-family:'DM Sans',sans-serif; white-space:nowrap; flex-shrink:0;
+    ">Get Started →</button>
+    <button onclick="document.getElementById('gs-banner').style.display='none'" style="
+      background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer;
+      font-size:18px; padding:4px; flex-shrink:0;
+    ">✕</button>
+  </div>
+
+
+    <div class="alert am" id="a1">
+      <div class="ai">⚠</div>
+      <div class="ab">
+        <div class="at">Coverage gap detected · Fri Apr 11, 5:00–8:00 PM</div>
+        <div class="ad">Jordan unavailable Friday afternoon. Agent contacted backup list overnight — Maya confirmed at $22/hr. No action needed unless you want to change the plan.</div>
+        <div class="aa">
+          <button class="btn bp" onclick="approveAlert('a1','Approved — Maya confirmed for Fri 5–8 PM')">Approve plan</button>
+          <button class="btn bo" onclick="showView('roster')">View SMS thread</button>
+          <button class="btn bg" onclick="dismissAlert('a1')">Dismiss</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert red" id="a2">
+      <div class="ai">🏫</div>
+      <div class="ab">
+        <div class="at">Daycare closed Apr 14 — professional development day</div>
+        <div class="ad">No coverage scheduled for Mon Apr 14. Agent can reach out to backup nannies automatically.</div>
+        <div class="aa">
+          <button class="btn bp" onclick="approveAlert('a2','Agent queued to handle Apr 14 coverage')">Let agent handle it</button>
+          <button class="btn bg" onclick="dismissAlert('a2')">I'll handle it</button>
+        </div>
+      </div>
+    </div>
+    <div class="alert tl" id="a3">
+      <div class="ai">✓</div>
+      <div class="ab">
+        <div class="at">Weekly summary ready · Week of Apr 7</div>
+        <div class="ad">Jordan: 45 hrs · Maya: 3 hrs · Total payable ~$966. No app payment — for your reference only.</div>
+        <div class="aa">
+          <button class="btn bo" onclick="showView('hours')">View hours log</button>
+          <button class="btn bg" onclick="dismissAlert('a3')">Dismiss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="card"><div class="ct">Nanny hours this week</div><div class="cv">48</div><div class="cs">Jordan + Maya combined</div></div>
+    <div class="card"><div class="ct">Open gaps</div><div class="cv" style="color:var(--amber)">1</div><div class="cs">Pending your approval</div></div>
+    <div class="card"><div class="ct">Upcoming flags</div><div class="cv">5</div><div class="cs">Next 30 days</div></div>
+    <div class="card"><div class="ct">Agent actions overnight</div><div class="cv" style="color:var(--teal)">7</div><div class="cs">While you slept</div></div>
+  </div>
+  <div class="sh"><div class="sth">Today at a glance · Tuesday Apr 8</div></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Coverage today</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <div class="av" style="background:var(--teal-bg);color:var(--teal-t);width:28px;height:28px;font-size:11px">JL</div>
+          <div><b style="font-weight:500">Jordan</b> · 8 AM – 5 PM</div>
+          <span class="pill tl" style="margin-left:auto">On duty</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <div class="av" style="background:var(--amber-bg);color:var(--amber-t);width:28px;height:28px;font-size:11px">DC</div>
+          <div><b style="font-weight:500">Daycare</b> · 8 AM – 5:30 PM</div>
+          <span class="pill am" style="margin-left:auto">Open</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Logistics</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;font-size:13px">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Car</span><span style="font-weight:500">Parent 1 has it (office day)</span></div>
+        <div class="div"></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Parent 1</span><span>In office · Home after 6 PM</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Parent 2</span><span>WFH all day</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="view" id="view-calendar">
+  <div class="ph">
+    <div><h1 class="pt">Calendar</h1><div class="ps">Family coverage view · simulated data</div></div>
+    <div class="cvb">
+      <button class="cvbtn active" id="cvW" onclick="setCV('week')">Week</button>
+      <button class="cvbtn" id="cvD" onclick="setCV('day')">Day</button>
+    </div>
+  </div>
+  <div class="cw">
+    <div class="ctb">
+      <div class="cnb">
+        <div class="cnbtn" onclick="calNav(-1)">‹</div>
+        <span class="ctit" id="calT">Apr 7–11, 2026</span>
+        <div class="cnbtn" onclick="calNav(1)">›</div>
+      </div>
+      <span class="tsm">Week 15 · Simulated schedules</span>
+    </div>
+    <div class="cgh" id="cHead"></div>
+    <div class="cgb" id="cBody"></div>
+    <div class="leg">
+      <div class="li"><div class="lb" style="background:var(--teal-bg);border-left:3px solid var(--teal)"></div>Primary nanny</div>
+      <div class="li"><div class="lb" style="background:var(--purple-bg);border-left:3px solid var(--purple)"></div>Backup nanny</div>
+      <div class="li"><div class="lb" style="background:var(--blue-bg);border-left:3px solid var(--blue)"></div>Work meeting</div>
+      <div class="li"><div class="lb" style="background:var(--amber-bg);border-left:3px solid var(--amber)"></div>Daycare</div>
+      <div class="li"><div class="lb" style="background:var(--slate-bg);border-left:3px solid var(--slate)"></div>WFH</div>
+      <div class="li"><div class="lb" style="background:var(--red-bg);border-left:3px solid var(--red)"></div>Gap</div>
+    </div>
+  </div>
+</div>
+
+<!-- ROSTER -->
+<div class="view" id="view-roster">
+  <div class="ph">
+    <div><h1 class="pt">Nanny roster</h1><div class="ps">Primary and backup care team · SMS-based coordination</div></div>
+    <button class="btn bp" onclick="openModal('nannyM')">+ Add nanny</button>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <table class="rt">
+      <thead><tr><th>Person</th><th>Role</th><th>Rate</th><th>Contact</th><th>Status</th><th>Hrs this week</th><th></th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="pc"><div class="av" style="background:var(--teal-bg);color:var(--teal-t)">JL</div><div><div class="pn">Jordan L.</div><div class="pp">Primary nanny</div></div></div></td>
+          <td><span class="pill tl">Primary</span></td><td>$20/hr</td>
+          <td><span class="tsm">SMS (210) 555-0101</span></td>
+          <td><span class="pill tl">Active</span></td><td>45 hrs</td>
+          <td><button class="btn bg">Edit</button></td>
+        </tr>
+        <tr>
+          <td><div class="pc"><div class="av" style="background:var(--purple-bg);color:var(--purple-t)">MK</div><div><div class="pn">Maya K.</div><div class="pp">Backup nanny</div></div></div></td>
+          <td><span class="pill pu">Backup</span></td><td>$22/hr</td>
+          <td><span class="tsm">SMS (210) 555-0202</span></td>
+          <td><span class="pill am">Fri confirmed</span></td><td>3 hrs</td>
+          <td><button class="btn bg">Edit</button></td>
+        </tr>
+        <tr>
+          <td><div class="pc"><div class="av" style="background:var(--blue-bg);color:var(--blue-t)">TS</div><div><div class="pn">Taylor S.</div><div class="pp">Backup nanny</div></div></div></td>
+          <td><span class="pill bl">Backup</span></td><td>$21/hr</td>
+          <td><span class="tsm">SMS (210) 555-0303</span></td>
+          <td><span class="pill gr">Available</span></td><td>0 hrs</td>
+          <td><button class="btn bg">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sh" style="margin-top:20px"><div class="sth">SMS thread — Friday gap resolution</div><span class="tsm">Agent handled overnight · parents slept</span></div>
+  <div class="card">
+    <div class="sms">
+      <div class="stm">Thu Apr 10 · 11:42 PM</div>
+      <div class="slbl">Jordan → Agent</div>
+      <div class="sm in">Hey, really sorry but I can't make it Friday afternoon 5–8pm. Family thing came up. Still good for the morning shift.</div>
+      <div class="slbl">Agent → Maya (backup #1)</div>
+      <div class="sm out">Hi Maya, this is the Hearth family scheduler. Are you available Fri Apr 11, 5–8 PM at $22/hr? Reply YES or NO.</div>
+      <div class="stm">11:44 PM</div>
+      <div class="sm in">YES! I can do that 👍</div>
+      <div class="slbl">Agent → Jordan</div>
+      <div class="sm out">Hi Jordan — confirmed, Maya covers Fri 5–8pm. You're still on for 8am–5pm. Thanks for the heads up!</div>
+      <div class="slbl">Agent → Parents (7 AM morning summary)</div>
+      <div class="sm out">🌿 Hearth: Friday gap filled while you slept. Maya confirmed 5–8 PM ($22/hr). Jordan covers 8 AM–5 PM. No action needed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOURS -->
+<div class="view" id="view-hours">
+  <div class="ph">
+    <div><h1 class="pt">Hours &amp; pay log</h1><div class="ps">Weekly summary — for your payroll reference only, no payments made here</div></div>
+    <select><option>Week of Apr 7, 2026</option><option>Week of Mar 31, 2026</option><option>Week of Mar 24, 2026</option></select>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="sh"><div class="sth">Jordan L. — Primary nanny</div><span class="pill tl">$20/hr</span></div>
+    <table class="ht">
+      <thead><tr><th>Day</th><th>Shift</th><th>Hours</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Mon Apr 7</td><td>8:00 AM – 5:00 PM</td><td>9</td><td style="color:var(--text2)">Regular</td></tr>
+        <tr><td>Tue Apr 8</td><td>8:00 AM – 5:00 PM</td><td>9</td><td style="color:var(--text2)">Regular</td></tr>
+        <tr><td>Wed Apr 9</td><td>8:00 AM – 5:00 PM</td><td>9</td><td style="color:var(--text2)">Regular</td></tr>
+        <tr><td>Thu Apr 10</td><td>8:00 AM – 5:00 PM</td><td>9</td><td style="color:var(--text2)">Regular</td></tr>
+        <tr><td>Fri Apr 11</td><td>8:00 AM – 5:00 PM</td><td>9</td><td style="color:var(--text2)">Regular</td></tr>
+        <tr class="tr"><td colspan="2">Total</td><td>45 hrs</td><td style="color:var(--teal-t)">≈ $900</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="sh"><div class="sth">Maya K. — Backup nanny</div><span class="pill pu">$22/hr</span></div>
+    <table class="ht">
+      <thead><tr><th>Day</th><th>Shift</th><th>Hours</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Fri Apr 11</td><td>5:00 PM – 8:00 PM</td><td>3</td><td style="color:var(--text2)">Gap fill — agent booked overnight</td></tr>
+        <tr class="tr"><td colspan="2">Total</td><td>3 hrs</td><td style="color:var(--purple-t)">≈ $66</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:15px;font-weight:500">Week total</span>
+      <span style="font-size:22px;font-family:'DM Serif Display',serif;color:var(--teal)">$966</span>
+    </div>
+    <div class="tsm" style="margin-top:6px">2 care workers · 48 hrs total · Pay your nannies directly — this is a reference only</div>
+  </div>
+</div>
+
+<!-- AGENT LOG -->
+<div class="view" id="view-agent">
+  <div class="ph"><div><h1 class="pt">Agent log</h1><div class="ps">Everything the agent did while you were sleeping or busy</div></div></div>
+  <div class="alog">
+    <div class="litem"><div class="li2">💤</div><div class="lb2"><div class="lti">Sleep mode activated · parents went to bed</div><div class="ld">Full autonomous scheduling authority handed to agent. Will wake parents only with morning summary.</div><span class="lst ls-in">System</span></div><div class="lt">10:30 PM<br>Apr 10</div></div>
+    <div class="litem"><div class="li2">📱</div><div class="lb2"><div class="lti">Jordan reported unavailable Fri 5–8 PM</div><div class="ld">Inbound SMS from Jordan. Agent acknowledged and started gap-fill protocol without waking parents.</div><span class="lst ls-in">Received</span></div><div class="lt">11:42 PM<br>Apr 10</div></div>
+    <div class="litem"><div class="li2">🤖</div><div class="lb2"><div class="lti">Contacted Maya K. — backup #1 on approved list</div><div class="ld">SMS sent: "Hi Maya, this is the Hearth scheduler. Available Fri Apr 11, 5–8 PM at $22/hr? Reply YES or NO."</div><span class="lst ls-pd">Awaiting reply</span></div><div class="lt">11:43 PM<br>Apr 10</div></div>
+    <div class="litem"><div class="li2">✅</div><div class="lb2"><div class="lti">Maya confirmed — gap filled, schedule updated</div><div class="ld">Maya replied YES. Jordan notified of new plan. Calendar updated. No parent woken up.</div><span class="lst ls-ok">Resolved</span></div><div class="lt">11:44 PM<br>Apr 10</div></div>
+    <div class="litem"><div class="li2">🔭</div><div class="lb2"><div class="lti">30-day lookahead scan completed</div><div class="ld">5 upcoming flags found: daycare closure Apr 14, field trip Apr 18, partner offsite Apr 25, school holiday May 2, half-day May 9.</div><span class="lst ls-in">Flagged</span></div><div class="lt">12:00 AM<br>Apr 11</div></div>
+    <div class="litem"><div class="li2">📊</div><div class="lb2"><div class="lti">Weekly hours summary compiled</div><div class="ld">Jordan: 45 hrs ($900) · Maya: 3 hrs ($66) · Total: $966. Ready on Hours &amp; pay log tab.</div><span class="lst ls-ok">Done</span></div><div class="lt">7:00 AM<br>Apr 11</div></div>
+    <div class="litem"><div class="li2">🌅</div><div class="lb2"><div class="lti">Morning summary delivered to parents</div><div class="ld">All overnight changes summarized. Parents wake up to a resolved schedule — no scrambling, no stress.</div><span class="lst ls-ok">Delivered</span></div><div class="lt">7:01 AM<br>Apr 11</div></div>
+  </div>
+</div>
+
+<!-- LOOKAHEAD -->
+<div class="view" id="view-lookahead">
+  <div class="ph"><div><h1 class="pt">30-day lookahead</h1><div class="ps">Upcoming coverage gaps and schedule flags detected by agent</div></div></div>
+  <div class="fl2">
+    <div class="fi">
+      <div class="fd"><div class="fdn">14</div>Apr</div>
+      <div style="width:1px;background:var(--border);margin:2px 0;flex-shrink:0"></div>
+      <div class="fb"><div class="fti">Daycare closed — professional development day</div><div class="fde">Full-day coverage needed 8 AM–5 PM. No backup scheduled yet.</div></div>
+      <div class="fdot fdr"></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="flagHandle(this)">Agent handle</button>
+        <button class="btn bo" style="font-size:11px;padding:4px 10px">Manual</button>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fd"><div class="fdn">18</div>Apr</div>
+      <div style="width:1px;background:var(--border);margin:2px 0;flex-shrink:0"></div>
+      <div class="fb"><div class="fti">School field trip — early drop-off 7:30 AM</div><div class="fde">Nanny needs to arrive 30 min early. Agent can notify Jordan automatically.</div></div>
+      <div class="fdot fdam"></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="flagHandle(this)">Agent notify</button>
+        <button class="btn bo" style="font-size:11px;padding:4px 10px">Manual</button>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fd"><div class="fdn">25</div>Apr</div>
+      <div style="width:1px;background:var(--border);margin:2px 0;flex-shrink:0"></div>
+      <div class="fb"><div class="fti">Parent 2 offsite all day</div><div class="fde">Parent 1 has back-to-back meetings 10 AM–4 PM. Extended coverage 5–7 PM may be needed.</div></div>
+      <div class="fdot fdam"></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="flagHandle(this)">Agent handle</button>
+        <button class="btn bo" style="font-size:11px;padding:4px 10px">Manual</button>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fd"><div class="fdn">2</div>May</div>
+      <div style="width:1px;background:var(--border);margin:2px 0;flex-shrink:0"></div>
+      <div class="fb"><div class="fti">School holiday — no school or daycare</div><div class="fde">Both closed. Full-day nanny coverage needed for all children.</div></div>
+      <div class="fdot fdr"></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="flagHandle(this)">Agent handle</button>
+        <button class="btn bo" style="font-size:11px;padding:4px 10px">Manual</button>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fd"><div class="fdn">9</div>May</div>
+      <div style="width:1px;background:var(--border);margin:2px 0;flex-shrink:0"></div>
+      <div class="fb"><div class="fti">School half-day — noon dismissal</div><div class="fde">Kids home by 12:30 PM. Confirm nanny or parent coverage from noon.</div></div>
+      <div class="fdot fdbl"></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button class="btn bo" style="font-size:11px;padding:4px 10px">Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="view" id="view-settings">
+  <div class="ph"><div><h1 class="pt">Settings</h1><div class="ps">Agent behavior, calendars, sleep hours, and contacts</div></div></div>
+  <div class="ss">
+    <div class="sst">Agent behavior</div>
+    <div class="sr"><div><div class="sl">Sleep mode</div><div class="sub">Agent acts autonomously overnight — no approval needed for gap fills</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="sr"><div><div class="sl">Auto-fill gaps overnight</div><div class="sub">Contact pre-approved backups when primary calls off while sleeping</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="sr"><div><div class="sl">Require approval during day</div><div class="sub">Present plan for your approval before contacting nannies during waking hours</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="sr"><div><div class="sl">Proactive 30-day lookahead</div><div class="sub">Scan for gaps and flags nightly at midnight</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="sr"><div><div class="sl">Weekly hours summary</div><div class="sub">Send pay log every Saturday morning</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+    
+                <div class="sr"><div><div class="sl">Setup wizard</div><div class="sub">Re-run the getting started wizard to update your family info or nannies</div></div><button class="btn bp" style="font-size:12px" onclick="startSetup()">Open setup →</button></div>
+        <div class="sr"><div><div class="sl">Replay onboarding tour</div><div class="sub">Walk through the app introduction again</div></div><button class="btn bo" style="font-size:12px" onclick="startOnboarding()">Replay tour</button></div>
+        <div class="sr"><div><div class="sl">Agent reschedules work meetings</div><div class="sub">Disabled — agent will not touch work calendars</div></div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+  </div>
+  <div class="ss">
+    <div class="sst">Calendars to watch <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:8px">— connect when ready to go live</span></div>
+    <div class="sr"><div><div class="sl">Parent 1 personal calendar</div><div class="sub">Not connected — using demo data</div></div><button class="btn bo" style="font-size:12px">Connect Google Cal</button></div>
+    <div class="sr"><div><div class="sl">Parent 2 personal calendar</div><div class="sub">Not connected — using demo data</div></div><button class="btn bo" style="font-size:12px">Connect Google Cal</button></div>
+    <div class="sr"><div><div class="sl">Parent 1 work calendar</div><div class="sub">Not connected — using demo data</div></div><button class="btn bo" style="font-size:12px">Connect Google Cal</button></div>
+    <div class="sr"><div><div class="sl">Parent 2 work calendar</div><div class="sub">Not connected — using demo data</div></div><button class="btn bo" style="font-size:12px">Connect Google Cal</button></div>
+    <div class="sr"><div><div class="sl">Daycare calendar</div><div class="sub">Not connected — using demo data</div></div><button class="btn bo" style="font-size:12px">Connect Google Cal</button></div>
+    <div class="sr"><div><div class="sl">School calendar</div><div class="sub">Not connected — using demo data</div></div><button class="btn bo" style="font-size:12px">Connect Google Cal</button></div>
+  </div>
+  <div class="ss">
+    <div class="sst">Sleep schedule</div>
+    <div class="sr"><div class="sl">Bedtime — agent goes autonomous</div><input type="time" value="22:00"></div>
+    <div class="sr"><div class="sl">Wake time — approval mode resumes</div><input type="time" value="07:00"></div>
+  </div>
+  <div class="ss">
+    <div class="sst">Contacts &amp; limits</div>
+    <div class="sr"><div class="sl">Parent 1 phone (SMS + notifications)</div><input type="tel" value="(210) 555-0001" style="width:180px"></div>
+    <div class="sr"><div class="sl">Parent 2 phone (SMS + notifications)</div><input type="tel" value="(210) 555-0002" style="width:180px"></div>
+    <div class="sr"><div><div class="sl">Max hourly rate for auto-approval</div><div class="sub">Agent will not book above this without waking you</div></div><select style="width:120px"><option>$20/hr</option><option selected>$25/hr</option><option>$30/hr</option><option>No limit</option></select></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- Modals -->
+<div class="mo" id="gapM">
+  <div class="md">
+    <h2>Add coverage shift</h2>
+    <div class="mds">Manually schedule a nanny shift</div>
+    <div class="fr"><label class="fl">Date</label><input type="text" value="Apr 11, 2026"></div>
+    <div class="fr"><label class="fl">Start time</label><input type="time" value="08:00"></div>
+    <div class="fr"><label class="fl">End time</label><input type="time" value="17:00"></div>
+    <div class="fr"><label class="fl">Assign to</label><select><option>Jordan L. (Primary — $20/hr)</option><option>Maya K. (Backup — $22/hr)</option><option>Taylor S. (Backup — $21/hr)</option></select></div>
+    <div class="ma"><button class="btn bo" onclick="closeModal('gapM')">Cancel</button><button class="btn bp" onclick="closeModal('gapM')">Save shift</button></div>
+  </div>
+</div>
+<div class="mo" id="nannyM">
+  <div class="md">
+    <h2>Add nanny</h2>
+    <div class="mds">They receive SMS only — no app download needed</div>
+    <div class="fr"><label class="fl">Full name</label><input type="text" placeholder="Full name"></div>
+    <div class="fr"><label class="fl">Phone (for SMS)</label><input type="tel" placeholder="(210) 555-0000"></div>
+    <div class="fr"><label class="fl">Hourly rate</label><input type="text" placeholder="$20"></div>
+    <div class="fr"><label class="fl">Role</label><select><option>Primary</option><option selected>Backup</option></select></div>
+    <div class="fr"><label class="fl">Priority in backup list</label><select><option>1st contact</option><option>2nd contact</option><option>3rd contact</option></select></div>
+    <div class="ma"><button class="btn bo" onclick="closeModal('nannyM')">Cancel</button><button class="btn bp" onclick="closeModal('nannyM')">Add to roster</button></div>
+  </div>
+</div>
+
+<script>
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const n=document.getElementById('nav-'+id);
+  if(n)n.classList.add('active');
+  if(id==='calendar')renderCal();
+}
+let sleepOn=true;
+function toggleSleep(){
+  sleepOn=!sleepOn;
+  document.getElementById('sDot').classList.toggle('on',sleepOn);
+  document.getElementById('sLbl').textContent=sleepOn?'Sleep mode on':'Sleep mode off';
+}
+function dismissAlert(id){
+  const el=document.getElementById(id);
+  el.style.opacity='0';el.style.maxHeight='0';el.style.overflow='hidden';
+  el.style.marginBottom='0';el.style.padding='0';el.style.border='none';
+  setTimeout(()=>{el.remove();updBadge();},350);
+}
+function approveAlert(id,msg){
+  const el=document.getElementById(id);
+  el.className='alert tl';
+  el.querySelector('.at').textContent='✓ '+msg;
+  el.querySelector('.ad').textContent='Agent has been approved to execute this plan.';
+  el.querySelector('.aa').innerHTML='<button class="btn bg" onclick="dismissAlert(\''+id+'\')">Dismiss</button>';
+  updBadge();
+}
+function updBadge(){
+  const c=document.querySelectorAll('#alerts .alert').length;
+  document.getElementById('nc').textContent=c;
+  document.getElementById('ab').textContent=c;
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+function flagHandle(btn){btn.textContent='✓ Queued';btn.className='btn bg';btn.disabled=true;btn.style.color='var(--teal-t)'}
+
+const HOURS=[7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+const RH=40;
+let wo=0;
+const EVS=[
+  [0,8,17,'Jordan (nanny)','nanny'],[1,8,17,'Jordan (nanny)','nanny'],
+  [2,8,17,'Jordan (nanny)','nanny'],[3,8,17,'Jordan (nanny)','nanny'],
+  [4,8,17,'Jordan (nanny)','nanny'],[4,17,20,'Maya K. (backup)','backup'],
+  [0,8,17.5,'Daycare','daycare'],[1,8,17.5,'Daycare','daycare'],
+  [2,8,17.5,'Daycare','daycare'],[3,8,17.5,'Daycare','daycare'],
+  [1,9,10,'Team standup','meeting'],[1,14,15.5,'Design review','meeting'],
+  [3,10,11,'1:1 meeting','meeting'],[0,9,17,'Parent 2 WFH','wfh'],
+  [2,9,17,'Parent 1 WFH','wfh'],
+];
+const DAYS=['Mon','Tue','Wed','Thu','Fri'];
+function renderCal(){
+  const base=7+wo*7;
+  const h=document.getElementById('cHead');
+  h.innerHTML='<div style="padding:10px 4px"></div>';
+  DAYS.forEach((d,i)=>{
+    const date=base+i;
+    const tod=date===8&&wo===0;
+    h.innerHTML+=`<div class="dh"><span style="display:block;margin-bottom:4px">${d}</span><span class="dd${tod?' today':''}">${date}</span></div>`;
+  });
+  document.getElementById('calT').textContent=`Apr ${base}–${base+4}, 2026`;
+  const b=document.getElementById('cBody');
+  b.innerHTML='';
+  const tc=document.createElement('div');
+  HOURS.forEach(hr=>{
+    const s=document.createElement('div');s.className='ts';
+    s.textContent=hr<12?hr+' am':(hr===12?'12 pm':(hr-12)+' pm');
+    tc.appendChild(s);
+  });
+  b.appendChild(tc);
+  for(let c=0;c<5;c++){
+    const col=document.createElement('div');col.className='dcb';col.style.position='relative';
+    HOURS.forEach(()=>{const l=document.createElement('div');l.className='hl';col.appendChild(l);});
+    const ov=document.createElement('div');ov.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;';
+    const devs=EVS.filter(e=>e[0]===c);const placed=[];
+    devs.forEach(ev=>{
+      const top=(ev[1]-HOURS[0])*RH;
+      const ht=(ev[2]-ev[1])*RH-2;
+      const ovl=placed.filter(p=>!(ev[2]<=p[1]||ev[1]>=p[2]));
+      const sl=ovl.length;const tot=sl+1;
+      const el=document.createElement('div');el.className='ev '+ev[4];
+      el.style.cssText=`top:${top}px;height:${ht}px;left:calc(${sl/tot*100}%+2px);width:calc(${1/tot*100}%-4px);pointer-events:auto;`;
+      el.textContent=ev[3];ov.appendChild(el);placed.push(ev);
+    });
+    col.appendChild(ov);b.appendChild(col);
+  }
+}
+function calNav(d){wo+=d;renderCal();}
+function setCV(v){
+  document.getElementById('cvW').classList.toggle('active',v==='week');
+  document.getElementById('cvD').classList.toggle('active',v==='day');
+}
+renderCal();
+</script>
+
+<!-- Mobile bottom nav -->
+<div class="mobile-nav">
+  <button class="mn-item active" id="mn-dashboard" onclick="showView('dashboard');setMN('dashboard')">
+    <span class="mni">◈</span>Home
+  </button>
+  <button class="mn-item" id="mn-calendar" onclick="showView('calendar');setMN('calendar')">
+    <span class="mni">📅</span>Calendar
+  </button>
+  <button class="mn-item" id="mn-roster" onclick="showView('roster');setMN('roster')">
+    <span class="mni">👥</span>Roster
+  </button>
+  <button class="mn-item" id="mn-agent" onclick="showView('agent');setMN('agent')">
+    <span class="mni">🤖</span>Agent
+  </button>
+  <button class="mn-item" id="mn-settings" onclick="showView('settings');setMN('settings')">
+    <span class="mni">⚙</span>More
+  </button>
+</div>
+
+<!-- Add to home screen banner (shows on mobile browsers) -->
+<div class="install-banner" id="installBanner">
+  <div class="ib-icon">⌂</div>
+  <div class="ib-text"><strong>Add Hearth to your home screen</strong>Tap Share → "Add to Home Screen" for app-like experience</div>
+  <button class="btn bg" onclick="document.getElementById('installBanner').classList.remove('show')" style="flex-shrink:0">✕</button>
+</div>
+
+<script>
+// Mobile nav sync
+function setMN(id){
+  document.querySelectorAll('.mn-item').forEach(m=>m.classList.remove('active'));
+  const mn=document.getElementById('mn-'+id);
+  if(mn)mn.classList.add('active');
+}
+// Patch showView to also sync mobile nav
+const _origShow=showView;
+window.showView=function(id){_origShow(id);setMN(id);};
+
+// PWA service worker registration
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
+// Install prompt (Android Chrome)
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBanner').classList.add('show');
+});
+
+// iOS: show banner if not already installed and on iOS
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone=window.navigator.standalone===true;
+if(isIOS&&!isStandalone){
+  setTimeout(()=>document.getElementById('installBanner').classList.add('show'),2000);
+}
+</script>
+
+
+<!-- ===================== ONBOARDING OVERLAY ===================== -->
+<div id="onboarding" style="
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(20,16,12,0.72);
+  align-items:center;justify-content:center;padding:16px;
+  font-family:'DM Sans',sans-serif;
+">
+  <!-- Card -->
+  <div style="
+    background:#fff;border-radius:20px;width:100%;max-width:420px;
+    overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.22);
+    position:relative;
+  ">
+    <!-- Progress bar -->
+    <div style="height:4px;background:#F0EDE8;">
+      <div id="ob-progress" style="height:4px;background:#1D9E75;transition:width .35s ease;width:12.5%"></div>
+    </div>
+
+    <!-- Slides wrapper -->
+    <div id="ob-slides" style="overflow:hidden;">
+      <div id="ob-track" style="display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);">
+
+        <!-- Slide 1: Welcome -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#E1F5EE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">⌂</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">Welcome to Hearth</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">Hearth is your family's childcare command center. It keeps track of your nannies, your schedules, and your kids' care — and handles problems automatically while you sleep.</p>
+          <p style="font-size:13px;color:#9E9893;margin-top:14px;">This quick tour takes about 60 seconds. Swipe or tap Next to continue.</p>
+        </div>
+
+        <!-- Slide 2: The problem it solves -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#FDEAEA;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">😓</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">The problem</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">Childcare scheduling is stressful. Your nanny calls off at midnight. Daycare is randomly closed. One thing changes and everything cascades — who has the car, who can go to the office, who needs to stay home.</p>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;margin-top:10px;">Hearth takes that weight off your plate — especially when you're asleep.</p>
+        </div>
+
+        <!-- Slide 3: Sleep mode -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#EEEBFB;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">💤</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">Sleep mode</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">Turn on <strong style="color:#1A1714;">Sleep mode</strong> at bedtime. While you're sleeping, the agent watches everything and acts on your behalf — no waking you up.</p>
+          <div style="background:#F0EDE8;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:13px;color:#6B6560;line-height:1.6;">
+            <strong style="color:#1A1714;display:block;margin-bottom:4px;">Example:</strong>
+            Your nanny texts at 11 PM that she can't come Friday. Hearth texts your backup nannies, gets a confirmation, updates the schedule, and sends you a summary at 7 AM. You wake up to a solved problem.
+          </div>
+        </div>
+
+        <!-- Slide 4: The Dashboard -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#E8F1FB;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">◈</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">Dashboard</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">Your first stop every morning. It shows:</p>
+          <ul style="font-size:13px;color:#6B6560;line-height:1.9;margin:10px 0 0 16px;">
+            <li><strong style="color:#1A1714;">Alert cards</strong> — things the agent found or resolved overnight</li>
+            <li><strong style="color:#1A1714;">Today's coverage</strong> — who's watching the kids and when</li>
+            <li><strong style="color:#1A1714;">Logistics</strong> — who has the car, who's WFH vs in office</li>
+            <li><strong style="color:#1A1714;">Stats</strong> — open gaps, upcoming flags, agent actions</li>
+          </ul>
+          <p style="font-size:13px;color:#9E9893;margin-top:12px;">Tap the alert buttons to approve agent plans or dismiss resolved items.</p>
+        </div>
+
+        <!-- Slide 5: Calendar -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#FDF0D8;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">📅</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">Calendar</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">One view combining every schedule that affects childcare — color-coded so you can instantly see what's happening.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;">
+            <div style="background:#E1F5EE;border-left:3px solid #1D9E75;border-radius:6px;padding:7px 10px;font-size:12px;color:#0A5C41;font-weight:500;">🟢 Primary nanny</div>
+            <div style="background:#EEEBFB;border-left:3px solid #6B52C8;border-radius:6px;padding:7px 10px;font-size:12px;color:#3A2880;font-weight:500;">🟣 Backup nanny</div>
+            <div style="background:#FDF0D8;border-left:3px solid #C47A12;border-radius:6px;padding:7px 10px;font-size:12px;color:#6B3E06;font-weight:500;">🟡 Daycare/school</div>
+            <div style="background:#FDEAEA;border-left:3px solid #D94040;border-radius:6px;padding:7px 10px;font-size:12px;color:#7A1A1A;font-weight:500;">🔴 Coverage gap</div>
+            <div style="background:#E8F1FB;border-left:3px solid #2B72C8;border-radius:6px;padding:7px 10px;font-size:12px;color:#0C3F7A;font-weight:500;">🔵 Work meeting</div>
+            <div style="background:#EDF0F4;border-left:3px solid #4A5568;border-radius:6px;padding:7px 10px;font-size:12px;color:#2D3748;font-weight:500;">⚫ WFH day</div>
+          </div>
+        </div>
+
+        <!-- Slide 6: Roster & SMS -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#E1F5EE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">👥</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">Nanny roster</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">Add your primary nanny and as many backups as you want — with their phone number, hourly rate, and priority order.</p>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;margin-top:10px;"><strong style="color:#1A1714;">Nannies never need to download anything.</strong> The agent contacts them by SMS only. Whoever replies YES first gets the shift.</p>
+          <div style="background:#F0EDE8;border-radius:10px;padding:10px 14px;margin-top:14px;font-size:12px;color:#6B6560;">
+            You can also view the full SMS thread here — every message the agent sent and received, with timestamps.
+          </div>
+        </div>
+
+        <!-- Slide 7: Lookahead & Hours -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#FDF0D8;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">🔭</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">Lookahead &amp; pay log</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;"><strong style="color:#1A1714;">30-day Lookahead</strong> — the agent scans ahead every night and flags upcoming problems: daycare closed, school trips, a parent offsite. You can tap "Agent handle" to let it solve each one automatically.</p>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;margin-top:10px;"><strong style="color:#1A1714;">Hours &amp; pay log</strong> — every Saturday morning the agent tallies who worked what hours and at what rate. Use it to pay your nannies — Hearth never handles money.</p>
+        </div>
+
+        <!-- Slide 8: Ready to go -->
+        <div class="ob-slide" style="min-width:100%;padding:32px 28px 24px;">
+          <div style="width:52px;height:52px;background:#E1F5EE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;">🌿</div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:24px;font-weight:400;color:#1A1714;margin-bottom:10px;">You're all set</h2>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;">Right now you're looking at <strong style="color:#1A1714;">demo data</strong> — simulated schedules so you can explore safely before connecting real calendars.</p>
+          <p style="font-size:14px;color:#6B6560;line-height:1.65;margin-top:10px;">When you're ready to go live, head to <strong style="color:#1A1714;">Settings</strong> and connect your Google Calendars one by one. The app works the same way — just with your real schedules.</p>
+          <p style="font-size:13px;color:#9E9893;margin-top:14px;">You can replay this tour anytime from Settings → "Replay tour".</p>
+          <button onclick="closeOnboarding()" style="
+            margin-top:20px;width:100%;padding:13px;
+            background:#1D9E75;color:#fff;border:none;
+            border-radius:10px;font-size:15px;font-weight:500;
+            font-family:'DM Sans',sans-serif;cursor:pointer;
+          ">Let's go →</button>
+        </div>
+
+      </div><!-- end track -->
+    </div><!-- end slides wrapper -->
+
+    <!-- Bottom controls -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px 20px;border-top:1px solid rgba(0,0,0,0.07);" id="ob-controls">
+      <!-- Dots -->
+      <div id="ob-dots" style="display:flex;gap:6px;">
+        <!-- filled by JS -->
+      </div>
+      <!-- Buttons -->
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="ob-skip" onclick="closeOnboarding()" style="background:none;border:none;font-size:13px;color:#9E9893;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px 8px;">Skip</button>
+        <button id="ob-back" onclick="obNav(-1)" style="background:#F0EDE8;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;color:#6B6560;display:none;">Back</button>
+        <button id="ob-next" onclick="obNav(1)" style="background:#1D9E75;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;color:#fff;">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Onboarding ----
+const OB_TOTAL = 8;
+let obStep = 0;
+
+function initDots() {
+  const d = document.getElementById('ob-dots');
+  d.innerHTML = '';
+  for (let i = 0; i < OB_TOTAL; i++) {
+    const dot = document.createElement('div');
+    dot.style.cssText = `width:${i===0?'20px':'7px'};height:7px;border-radius:10px;background:${i===0?'#1D9E75':'#D3D1C7'};transition:all .25s;`;
+    d.appendChild(dot);
+  }
+}
+
+function updateDots() {
+  const dots = document.getElementById('ob-dots').children;
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].style.background = i === obStep ? '#1D9E75' : '#D3D1C7';
+    dots[i].style.width = i === obStep ? '20px' : '7px';
+  }
+}
+
+function obNav(dir) {
+  obStep = Math.max(0, Math.min(OB_TOTAL - 1, obStep + dir));
+  document.getElementById('ob-track').style.transform = `translateX(-${obStep * 100}%)`;
+  document.getElementById('ob-progress').style.width = `${((obStep + 1) / OB_TOTAL) * 100}%`;
+  updateDots();
+  // Back button
+  document.getElementById('ob-back').style.display = obStep > 0 ? 'block' : 'none';
+  // Next button — hide on last slide (has its own CTA)
+  const nextBtn = document.getElementById('ob-next');
+  const skipBtn = document.getElementById('ob-skip');
+  const ctrlDiv = document.getElementById('ob-controls');
+  if (obStep === OB_TOTAL - 1) {
+    nextBtn.style.display = 'none';
+    skipBtn.style.display = 'none';
+    ctrlDiv.style.display = 'none';
+  } else {
+    nextBtn.style.display = 'block';
+    skipBtn.style.display = 'block';
+    ctrlDiv.style.display = 'flex';
+  }
+}
+
+function closeOnboarding() {
+  const el = document.getElementById('onboarding');
+  el.style.opacity = '0';
+  el.style.transition = 'opacity .3s';
+  setTimeout(() => { el.style.display = 'none'; }, 300);
+  try { localStorage.setItem('hearth_toured', '1'); } catch(e){}
+}
+
+function startOnboarding() {
+  obStep = 0;
+  initDots();
+  document.getElementById('ob-track').style.transform = 'translateX(0)';
+  document.getElementById('ob-progress').style.width = '12.5%';
+  document.getElementById('ob-back').style.display = 'none';
+  document.getElementById('ob-next').style.display = 'block';
+  document.getElementById('ob-skip').style.display = 'block';
+  document.getElementById('ob-controls').style.display = 'flex';
+  const el = document.getElementById('onboarding');
+  el.style.opacity = '0';
+  el.style.display = 'flex';
+  requestAnimationFrame(() => {
+    el.style.transition = 'opacity .3s';
+    el.style.opacity = '1';
+  });
+}
+
+// Touch/swipe support
+(function(){
+  let sx = 0;
+  const track = document.getElementById('ob-track');
+  track.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, {passive:true});
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 40) obNav(dx < 0 ? 1 : -1);
+  }, {passive:true});
+})();
+
+// Auto-show on first visit
+window.addEventListener('DOMContentLoaded', () => {
+  let seen = false;
+  try { seen = localStorage.getItem('hearth_toured') === '1'; } catch(e){}
+  if (!seen) setTimeout(startOnboarding, 600);
+});
+</script>
+
+
+<!-- ═══════════════ SETUP WIZARD ═══════════════ -->
+<div id="setupWizard" style="
+  display:none; position:fixed; inset:0; z-index:300;
+  background:rgba(20,16,12,0.75);
+  align-items:center; justify-content:center; padding:16px;
+  font-family:'DM Sans',sans-serif;
+">
+  <div style="
+    background:#fff; border-radius:20px; width:100%; max-width:480px;
+    max-height:90vh; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 8px 40px rgba(0,0,0,0.25);
+  ">
+    <!-- Header -->
+    <div style="padding:20px 24px 0; flex-shrink:0;">
+      <!-- Progress bar -->
+      <div style="height:4px; background:#F0EDE8; border-radius:4px; margin-bottom:16px;">
+        <div id="sw-progress" style="height:4px; background:#1D9E75; border-radius:4px; transition:width .35s ease; width:12.5%;"></div>
+      </div>
+      <!-- Step label -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+        <span id="sw-step-label" style="font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:.07em; color:#9E9893;">Step 1 of 8</span>
+        <button onclick="closeSetup()" style="background:none;border:none;font-size:18px;color:#9E9893;cursor:pointer;padding:2px 6px;">✕</button>
+      </div>
+      <h2 id="sw-title" style="font-family:'DM Serif Display',serif; font-size:22px; font-weight:400; color:#1A1714; margin-bottom:4px;"></h2>
+      <p id="sw-desc" style="font-size:13px; color:#6B6560; line-height:1.6; margin-bottom:16px;"></p>
+    </div>
+
+    <!-- Scrollable body -->
+    <div id="sw-body" style="padding:0 24px; overflow-y:auto; flex:1;"></div>
+
+    <!-- Footer -->
+    <div style="padding:16px 24px 20px; border-top:1px solid rgba(0,0,0,0.07); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+      <button id="sw-back" onclick="swNav(-1)" style="
+        background:#F0EDE8; border:none; border-radius:8px; padding:9px 18px;
+        font-size:13px; font-weight:500; cursor:pointer; color:#6B6560;
+        font-family:'DM Sans',sans-serif; display:none;
+      ">← Back</button>
+      <div style="flex:1;"></div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="sw-skip-step" onclick="swNav(1)" style="
+          background:none; border:none; font-size:13px; color:#9E9893;
+          cursor:pointer; font-family:'DM Sans',sans-serif; padding:4px 8px;
+        ">Skip this step</button>
+        <button id="sw-next" onclick="swNext()" style="
+          background:#1D9E75; border:none; border-radius:8px; padding:9px 20px;
+          font-size:13px; font-weight:500; cursor:pointer; color:#fff;
+          font-family:'DM Sans',sans-serif;
+        ">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Setup Wizard Data ───────────────────────────────────────────────
+const SW_STEPS = [
+  {
+    title: "Welcome to setup",
+    desc: "This wizard takes about 3 minutes. You'll add both parents' details, connect your calendars, and set up your nanny roster. You can pause and come back anytime — progress is saved.",
+    type: "intro",
+    icon: "🌿"
+  },
+  {
+    title: "Parent 1 details",
+    desc: "Start with the first parent. This is used for notifications and to label your schedule in the calendar.",
+    type: "form",
+    fields: [
+      { id:"p1name",  label:"Full name",       type:"text",  placeholder:"e.g. Alex" },
+      { id:"p1phone", label:"Phone number (for SMS alerts)", type:"tel",  placeholder:"(210) 555-0001" },
+      { id:"p1email", label:"Google account email", type:"text", placeholder:"alex@gmail.com" },
+      { id:"p1work",  label:"Work schedule",   type:"select", options:["In office most days","Mostly WFH","Hybrid (mix of both)","Varies week to week"] }
+    ]
+  },
+  {
+    title: "Parent 2 details",
+    desc: "Add the second parent so the agent knows both schedules and can send alerts to both of you.",
+    type: "form",
+    fields: [
+      { id:"p2name",  label:"Full name",       type:"text",  placeholder:"e.g. Shereen" },
+      { id:"p2phone", label:"Phone number (for SMS alerts)", type:"tel",  placeholder:"(210) 555-0002" },
+      { id:"p2email", label:"Google account email", type:"text", placeholder:"shereen@gmail.com" },
+      { id:"p2work",  label:"Work schedule",   type:"select", options:["In office most days","Mostly WFH","Hybrid (mix of both)","Varies week to week"] }
+    ]
+  },
+  {
+    title: "Connect your calendars",
+    desc: "Hearth watches these calendars to detect conflicts, office days, and gaps. Connect them one at a time — you can always add more later in Settings.",
+    type: "calendars"
+  },
+  {
+    title: "Children & care settings",
+    desc: "Tell Hearth about your children and their regular care schedule.",
+    type: "form",
+    fields: [
+      { id:"numkids",  label:"Number of children",  type:"select", options:["1","2","3","4","5+"] },
+      { id:"daycareyn", label:"Do you use daycare or school?", type:"select", options:["Yes — both daycare and school","Yes — daycare only","Yes — school only","No"] },
+      { id:"calhours", label:"Typical care hours needed", type:"select", options:["7 AM – 5 PM","8 AM – 5 PM","8 AM – 6 PM","7 AM – 6 PM","Custom / varies"] }
+    ]
+  },
+  {
+    title: "Primary nanny",
+    desc: "Add your main nanny. The agent will SMS them directly — they don't need to download anything.",
+    type: "form",
+    fields: [
+      { id:"n1name",  label:"Full name",              type:"text", placeholder:"e.g. Jordan" },
+      { id:"n1phone", label:"Mobile number (for SMS)", type:"tel",  placeholder:"(210) 555-0101" },
+      { id:"n1rate",  label:"Hourly rate",             type:"text", placeholder:"e.g. $20" },
+      { id:"n1hours", label:"Regular shift",           type:"select", options:["8 AM – 5 PM","7 AM – 5 PM","8 AM – 6 PM","7 AM – 6 PM","Part time / varies"] }
+    ]
+  },
+  {
+    title: "Backup nannies",
+    desc: "Add backup nannies in priority order. When a gap opens, the agent texts them one at a time — first YES wins. No app needed, just a phone number.",
+    type: "backups"
+  },
+  {
+    title: "Agent behavior",
+    desc: "Set how much the agent can do on its own, especially overnight when you're asleep.",
+    type: "agent-settings"
+  },
+  {
+    title: "You're all set! 🎉",
+    desc: "Hearth is configured and ready. Your info has been saved. The app will now use your real setup instead of demo data.",
+    type: "done"
+  }
+];
+
+let swStep = 0;
+const SW_TOTAL = SW_STEPS.length;
+let swData = {};
+let backups = [];
+
+function startSetup() {
+  swStep = 0;
+  try { const d = localStorage.getItem('hearth_setup'); if(d) swData = JSON.parse(d); } catch(e){}
+  const el = document.getElementById('setupWizard');
+  el.style.opacity = '0';
+  el.style.display = 'flex';
+  requestAnimationFrame(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '1'; });
+  renderSwStep();
+}
+
+function closeSetup() {
+  const el = document.getElementById('setupWizard');
+  el.style.opacity = '0';
+  setTimeout(() => { el.style.display = 'none'; }, 300);
+}
+
+function saveSwData() {
+  try { localStorage.setItem('hearth_setup', JSON.stringify(swData)); } catch(e){}
+}
+
+function swNav(dir) {
+  // save current form values before leaving
+  collectFormValues();
+  swStep = Math.max(0, Math.min(SW_TOTAL - 1, swStep + dir));
+  renderSwStep();
+}
+
+function swNext() {
+  collectFormValues();
+  if (swStep === SW_TOTAL - 1) { closeSetup(); applySetupToApp(); return; }
+  swStep = Math.min(SW_TOTAL - 1, swStep + 1);
+  renderSwStep();
+}
+
+function collectFormValues() {
+  document.querySelectorAll('#sw-body input, #sw-body select, #sw-body textarea').forEach(el => {
+    if (el.id) swData[el.id] = el.value;
+  });
+  saveSwData();
+}
+
+function renderSwStep() {
+  const step = SW_STEPS[swStep];
+  const pct = ((swStep + 1) / SW_TOTAL * 100).toFixed(0);
+  document.getElementById('sw-progress').style.width = pct + '%';
+  document.getElementById('sw-step-label').textContent = 'Step ' + (swStep + 1) + ' of ' + SW_TOTAL;
+  document.getElementById('sw-title').textContent = step.title;
+  document.getElementById('sw-desc').textContent = step.desc;
+  document.getElementById('sw-back').style.display = swStep > 0 ? 'block' : 'none';
+  document.getElementById('sw-skip-step').style.display = (swStep === 0 || swStep === SW_TOTAL - 1) ? 'none' : 'inline-block';
+  const nextBtn = document.getElementById('sw-next');
+  nextBtn.textContent = swStep === SW_TOTAL - 1 ? 'Finish & go live →' : 'Next →';
+  nextBtn.style.background = swStep === SW_TOTAL - 1 ? '#0A5C41' : '#1D9E75';
+
+  const body = document.getElementById('sw-body');
+  body.innerHTML = '';
+  body.style.padding = '0 24px 8px';
+
+  if (step.type === 'intro') renderIntro(body, step);
+  else if (step.type === 'form') renderForm(body, step);
+  else if (step.type === 'calendars') renderCalendars(body);
+  else if (step.type === 'backups') renderBackups(body);
+  else if (step.type === 'agent-settings') renderAgentSettings(body);
+  else if (step.type === 'done') renderDone(body);
+}
+
+function inp(id, label, type, placeholder, value) {
+  return `<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
+    <label style="font-size:12px;font-weight:500;color:#6B6560;">${label}</label>
+    <input id="${id}" type="${type}" placeholder="${placeholder}" value="${value||''}"
+      style="font-family:'DM Sans',sans-serif;font-size:13px;color:#1A1714;background:#fff;
+        border:1px solid rgba(0,0,0,0.14);border-radius:8px;padding:9px 11px;outline:none;width:100%;">
+  </div>`;
+}
+
+function sel(id, label, options, value) {
+  const opts = options.map(o => `<option${o===value?' selected':''}>${o}</option>`).join('');
+  return `<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;">
+    <label style="font-size:12px;font-weight:500;color:#6B6560;">${label}</label>
+    <select id="${id}" style="font-family:'DM Sans',sans-serif;font-size:13px;color:#1A1714;
+      background:#fff;border:1px solid rgba(0,0,0,0.14);border-radius:8px;padding:9px 11px;outline:none;width:100%;">
+      ${opts}
+    </select>
+  </div>`;
+}
+
+function renderIntro(body, step) {
+  body.innerHTML = `
+    <div style="text-align:center;padding:16px 0 24px;">
+      <div style="font-size:52px;margin-bottom:16px;">${step.icon}</div>
+      <div style="display:flex;flex-direction:column;gap:10px;text-align:left;">
+        ${['Add both parents — names, phones, Google accounts','Connect up to 6 Google Calendars','Add your children and care hours','Set up your primary nanny and backups','Configure how the agent behaves overnight'].map(t=>`
+          <div style="display:flex;align-items:center;gap:10px;background:#F7F4EF;border-radius:8px;padding:10px 14px;">
+            <div style="width:20px;height:20px;background:#E1F5EE;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0A5C41;font-weight:700;flex-shrink:0;">✓</div>
+            <span style="font-size:13px;color:#1A1714;">${t}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderForm(body, step) {
+  body.innerHTML = step.fields.map(f => {
+    const val = swData[f.id] || '';
+    return f.type === 'select' ? sel(f.id, f.label, f.options, val) : inp(f.id, f.label, f.type, f.placeholder, val);
+  }).join('');
+}
+
+function renderCalendars(body) {
+  const cals = [
+    { id:'cal_p1_personal', label:'Parent 1 personal calendar', icon:'👤', desc:'Personal events, appointments, days off' },
+    { id:'cal_p1_work',     label:'Parent 1 work calendar',     icon:'💼', desc:'Meetings, office days, work events' },
+    { id:'cal_p2_personal', label:'Parent 2 personal calendar', icon:'👤', desc:'Personal events, appointments, days off' },
+    { id:'cal_p2_work',     label:'Parent 2 work calendar',     icon:'💼', desc:'Meetings, office days, work events' },
+    { id:'cal_daycare',     label:'Daycare calendar',           icon:'🏫', desc:'Closures, holidays, special days' },
+    { id:'cal_school',      label:'School calendar',            icon:'📚', desc:'Trips, early dismissals, closures' },
+  ];
+  body.innerHTML = `
+    <div style="background:#FDF0D8;border:1px solid rgba(196,122,18,.2);border-radius:10px;padding:11px 14px;margin-bottom:16px;font-size:12px;color:#6B3E06;line-height:1.5;">
+      <strong>Note:</strong> This app is currently in demo mode. The "Connect" buttons below show you exactly where calendar connections will live — full Google Calendar sync requires a backend server. For now, your settings are saved and ready to activate when you go live.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;padding-bottom:8px;">
+      ${cals.map(c => {
+        const connected = swData[c.id] === 'connected';
+        return `<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:11px 14px;">
+          <div style="font-size:20px;flex-shrink:0;">${c.icon}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:500;color:#1A1714;">${c.label}</div>
+            <div style="font-size:11px;color:#9E9893;margin-top:1px;">${c.desc}</div>
+          </div>
+          <button id="${c.id}-btn" onclick="toggleCal('${c.id}')" style="
+            font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;
+            border-radius:7px;padding:6px 14px;border:1px solid;white-space:nowrap;
+            background:${connected?'#E1F5EE':'#fff'};
+            color:${connected?'#0A5C41':'#1A1714'};
+            border-color:${connected?'rgba(29,158,117,.3)':'rgba(0,0,0,.14)'};
+          ">${connected ? '✓ Connected' : 'Connect'}</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function toggleCal(id) {
+  const connected = swData[id] === 'connected';
+  swData[id] = connected ? '' : 'connected';
+  saveSwData();
+  const btn = document.getElementById(id + '-btn');
+  if (swData[id] === 'connected') {
+    btn.textContent = '✓ Connected';
+    btn.style.background = '#E1F5EE'; btn.style.color = '#0A5C41';
+    btn.style.borderColor = 'rgba(29,158,117,.3)';
+  } else {
+    btn.textContent = 'Connect';
+    btn.style.background = '#fff'; btn.style.color = '#1A1714';
+    btn.style.borderColor = 'rgba(0,0,0,.14)';
+  }
+}
+
+function renderBackups(body) {
+  // load saved backups
+  try { backups = JSON.parse(swData['backups'] || '[]'); } catch(e) { backups = []; }
+
+  function refreshBackupList() {
+    const list = document.getElementById('backup-list');
+    if (!backups.length) {
+      list.innerHTML = `<div style="text-align:center;padding:16px;font-size:13px;color:#9E9893;">No backups added yet</div>`;
+      return;
+    }
+    list.innerHTML = backups.map((b,i) => `
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:10px 14px;margin-bottom:8px;">
+        <div style="width:28px;height:28px;background:#EEEBFB;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3A2880;flex-shrink:0;">${i+1}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:500;color:#1A1714;">${b.name}</div>
+          <div style="font-size:11px;color:#9E9893;">${b.phone} · ${b.rate}/hr</div>
+        </div>
+        <button onclick="removeBackup(${i})" style="background:none;border:none;color:#D94040;cursor:pointer;font-size:16px;padding:2px 6px;">✕</button>
+      </div>`).join('');
+  }
+
+  body.innerHTML = `
+    <div id="backup-list" style="margin-bottom:14px;"></div>
+    <div style="background:#F7F4EF;border-radius:10px;padding:14px;margin-bottom:8px;">
+      <div style="font-size:12px;font-weight:500;color:#6B6560;margin-bottom:10px;">Add a backup nanny</div>
+      ${inp('bk-name','Name','text','e.g. Maya','')}
+      ${inp('bk-phone','Mobile number (SMS)','tel','(210) 555-0000','')}
+      ${inp('bk-rate','Hourly rate','text','$22','')}
+      <button onclick="addBackup()" style="
+        width:100%;background:#1D9E75;color:#fff;border:none;border-radius:8px;
+        padding:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;
+      ">+ Add to backup list</button>
+    </div>
+    <p style="font-size:11px;color:#9E9893;text-align:center;margin-top:8px;">Priority order = contact order. #1 is texted first.</p>`;
+
+  refreshBackupList();
+  window._refreshBackupList = refreshBackupList;
+}
+
+function addBackup() {
+  const name = document.getElementById('bk-name').value.trim();
+  const phone = document.getElementById('bk-phone').value.trim();
+  const rate = document.getElementById('bk-rate').value.trim();
+  if (!name || !phone) { alert('Please enter at least a name and phone number.'); return; }
+  backups.push({ name, phone, rate: rate || '?' });
+  swData['backups'] = JSON.stringify(backups);
+  saveSwData();
+  document.getElementById('bk-name').value = '';
+  document.getElementById('bk-phone').value = '';
+  document.getElementById('bk-rate').value = '';
+  if (window._refreshBackupList) window._refreshBackupList();
+}
+
+function removeBackup(i) {
+  backups.splice(i, 1);
+  swData['backups'] = JSON.stringify(backups);
+  saveSwData();
+  if (window._refreshBackupList) window._refreshBackupList();
+}
+
+function tog2(id) {
+  const t = document.getElementById(id);
+  t.classList.toggle('on2');
+  swData[id] = t.classList.contains('on2') ? 'on' : 'off';
+  saveSwData();
+  t.querySelector('.th2').style.transform = t.classList.contains('on2') ? 'translateX(16px)' : 'translateX(0)';
+}
+
+function renderAgentSettings(body) {
+  function togRow(id, label, sub, defaultOn) {
+    const isOn = swData[id] !== undefined ? swData[id] === 'on' : defaultOn;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+      <div>
+        <div style="font-size:13px;color:#1A1714;">${label}</div>
+        <div style="font-size:11px;color:#9E9893;margin-top:2px;">${sub}</div>
+      </div>
+      <div id="${id}" class="${isOn?'on2':''}" onclick="tog2('${id}')" style="
+        width:36px;height:20px;border-radius:20px;cursor:pointer;position:relative;
+        background:${isOn?'#1D9E75':'rgba(0,0,0,0.14)'};flex-shrink:0;transition:background .2s;
+      ">
+        <div class="th2" style="
+          position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;
+          top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+          transform:${isOn?'translateX(16px)':'translateX(0)'};
+        "></div>
+      </div>
+    </div>`;
+  }
+  const maxRate = swData['sw-maxrate'] || '$25/hr';
+  body.innerHTML = `
+    <div style="padding-bottom:16px;">
+      ${togRow('sw-sleep','Sleep mode','Agent acts fully autonomously while you sleep — no waking you up', true)}
+      ${togRow('sw-autofill','Auto-fill gaps overnight','Contact pre-approved backups without asking when sleeping', true)}
+      ${togRow('sw-approve','Require approval during the day','Present plan before contacting nannies during waking hours', true)}
+      ${togRow('sw-lookahead','30-day lookahead scan','Agent scans for problems every night at midnight', true)}
+      ${togRow('sw-weeksummary','Weekly pay summary','Send hours log every Saturday morning', true)}
+      ${togRow('sw-workcal','Agent can move work meetings','Off by default — most families prefer to keep this manual', false)}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0 4px;">
+        <div>
+          <div style="font-size:13px;color:#1A1714;">Max rate for auto-approval</div>
+          <div style="font-size:11px;color:#9E9893;margin-top:2px;">Agent won't book above this without waking you</div>
+        </div>
+        <select id="sw-maxrate" onchange="swData['sw-maxrate']=this.value;saveSwData()"
+          style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid rgba(0,0,0,.14);
+          border-radius:8px;padding:7px 10px;color:#1A1714;background:#fff;">
+          <option${maxRate==='$20/hr'?' selected':''}>$20/hr</option>
+          <option${maxRate==='$25/hr'?' selected':''}>$25/hr</option>
+          <option${maxRate==='$30/hr'?' selected':''}>$30/hr</option>
+          <option${maxRate==='No limit'?' selected':''}>No limit</option>
+        </select>
+      </div>
+    </div>`;
+}
+
+function renderDone(body) {
+  const p1 = swData['p1name'] || 'Parent 1';
+  const p2 = swData['p2name'] || 'Parent 2';
+  const n1 = swData['n1name'] || 'Primary nanny';
+  const nbk = backups.length;
+  const calCount = ['cal_p1_personal','cal_p1_work','cal_p2_personal','cal_p2_work','cal_daycare','cal_school']
+    .filter(c => swData[c] === 'connected').length;
+  body.innerHTML = `
+    <div style="padding:8px 0 24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        ${[
+          ['👨‍👩‍👧', 'Parents', `${p1} & ${p2}`],
+          ['📅', 'Calendars', calCount ? `${calCount} connected` : 'Pending connection'],
+          ['👤', 'Primary nanny', n1],
+          ['👥', 'Backups', nbk ? `${nbk} added` : 'None yet'],
+        ].map(([icon,label,val]) => `
+          <div style="background:#F7F4EF;border-radius:10px;padding:12px 14px;text-align:center;">
+            <div style="font-size:22px;margin-bottom:4px;">${icon}</div>
+            <div style="font-size:11px;color:#9E9893;text-transform:uppercase;letter-spacing:.05em;">${label}</div>
+            <div style="font-size:13px;font-weight:500;color:#1A1714;margin-top:2px;">${val}</div>
+          </div>`).join('')}
+      </div>
+      <div style="background:#E1F5EE;border-radius:10px;padding:14px;font-size:13px;color:#0A5C41;line-height:1.6;">
+        <strong>What happens now:</strong><br>
+        Your setup is saved. The app will reflect your real family names and nanny info. When you're ready to connect live calendars, go to <strong>Settings → Calendars</strong>. The agent will start working with real data the moment calendars are connected.
+      </div>
+    </div>`;
+}
+
+function applySetupToApp() {
+  // Hide get started banner permanently
+  const gsb = document.getElementById('gs-banner');
+  if (gsb) gsb.style.display = 'none';
+  try { localStorage.setItem('hearth_setup_done', '1'); } catch(e){}
+  // Update greeting if name saved
+  const p1 = swData['p1name'];
+  if (p1) {
+    const greet = document.querySelector('#view-dashboard .pt');
+    if (greet) greet.textContent = 'Good morning, ' + p1.split(' ')[0];
+  }
+}
+
+// Auto-hide get started banner if setup already done
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (localStorage.getItem('hearth_setup_done') === '1') {
+      const gsb = document.getElementById('gs-banner');
+      if (gsb) gsb.style.display = 'none';
+    }
+    const d = localStorage.getItem('hearth_setup');
+    if (d) { swData = JSON.parse(d); }
+  } catch(e){}
+});
+</script>
+
+</body>
+</html>
