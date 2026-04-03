@@ -733,19 +733,20 @@ if('serviceWorker' in navigator){
   });
 }
 
-// Install prompt (Android Chrome)
+// Only show install banner on mobile devices, never on desktop
+const isMobile=/iphone|ipad|ipod|android/i.test(navigator.userAgent);
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredPrompt=e;
-  document.getElementById('installBanner').classList.add('show');
-});
-
-// iOS: show banner if not already installed and on iOS
-const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone=window.navigator.standalone===true;
-if(isIOS&&!isStandalone){
-  setTimeout(()=>document.getElementById('installBanner').classList.add('show'),2000);
+if(isMobile){
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    document.getElementById('installBanner').classList.add('show');
+  });
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true;
+  if(isIOS&&!isStandalone){
+    setTimeout(()=>document.getElementById('installBanner').classList.add('show'),2000);
+  }
 }
 </script>
 
