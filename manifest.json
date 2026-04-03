@@ -2,7 +2,8 @@
   "name": "Hearth — Family Care Scheduler",
   "short_name": "Hearth",
   "description": "Family childcare scheduling and coordination agent",
-  "start_url": "/",
+  "start_url": "/hearth-appv2/",
+  "scope": "/hearth-appv2/",
   "display": "standalone",
   "background_color": "#F7F4EF",
   "theme_color": "#1D9E75",
@@ -21,6 +22,5 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["lifestyle", "productivity"],
-  "screenshots": []
+  "categories": ["lifestyle", "productivity"]
 }
